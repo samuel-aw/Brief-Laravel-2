@@ -1,7 +1,6 @@
 # Ressources Laravel
 
-Application de démonstration migrée vers Laravel : liste et détail de ressources
-pédagogiques (données en dur, sans base de données).
+Application de démonstration migrée vers Laravel 
 
 ## Prérequis
 
@@ -12,51 +11,51 @@ pédagogiques (données en dur, sans base de données).
 ## Installation
 
 ```bash
-git clone https://github.com/samuel-aw/Brief-Laravel-1.git
+git clone https://github.com/samuel-aw/Brief-Laravel-2.git
 cd ressources-laravel
 composer install
 cp .env.example .env
 php artisan key:generate
 ```
+## Base de données
+
+Créer une base vide `ressources_laravel` (utf8mb4_unicode_ci) puis renseigner dans `.env` :
 
 ## Configuration du .env
 
 Variables à vérifier dans `.env` :
 
 ```env
-APP_NAME="Ressources Laravel"
-APP_ENV=local
-APP_DEBUG=true
-APP_URL=http://127.0.0.1:8000
-SESSION_DRIVER=file
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=ressources_laravel
+DB_USERNAME=root
+DB_PASSWORD=
 ```
 
 Le fichier `.env` n'est pas versionné : chaque développeur crée le sien depuis `.env.example`.
 
 ## Lancement
 
+### Migrations et seeders
+
 ```bash
-php artisan serve
+php artisan migrate              # exécute les migrations
+php artisan migrate:fresh        # supprime tout et recrée les tables
+php artisan migrate:fresh --seed # recrée les tables et insère les données de test
+php artisan db:seed              # lance uniquement les seeders
+php artisan route:list           # liste les routes du CRUD
 ```
 
-Puis ouvrir http://127.0.0.1:8000
+## Cas de test manuels
 
-## Commandes Artisan utiles
-
-| Commande | Description |
-|---|---|
-| `php artisan serve` | Lance le serveur de développement |
-| `php artisan route:list` | Liste toutes les routes |
-| `php artisan make:controller NomController` | Crée un contrôleur |
-| `php artisan make:controller NomController --resource` | Crée un contrôleur CRUD |
-| `php artisan make:model Nom` | Crée un modèle |
-| `php artisan view:clear` | Vide le cache des vues |
-| `php artisan config:clear` | Vide le cache de la configuration |
-| `php artisan list` | Affiche toutes les commandes disponibles |
-
-## Structure principale
-
-- `routes/web.php` : routes web
-- `app/Http/Controllers/RessourceController.php` : contrôleur
-- `resources/views/layouts/app.blade.php` : layout commun
-- `resources/views/ressources/` : vues index et show
+| # | Scénario | Résultat attendu |
+|---|---|---|
+| 1 | Ajouter une ressource valide (titre, type, statut « disponible ») | Redirection vers la liste, message flash vert, ressource visible |
+| 2 | Envoyer le formulaire avec le titre vide | Message d'erreur sous le champ, les autres champs restent remplis |
+| 3 | Choisir le statut « emprunte » sans renseigner l'emprunteur | Erreur « L'emprunteur est obligatoire… » |
+| 4 | Modifier une ressource existante (changer son statut) | Redirection vers le détail, message flash, valeurs mises à jour |
+| 5 | Supprimer une ressource (confirmer la boîte de dialogue) | Ressource disparue de la liste, message flash de suppression |
+| 6 | Ouvrir `/ressources/9999` | Page 404 |
+| 7 | Rafraîchir la page (F5) après un ajout | Aucun doublon créé (redirection après POST) |
